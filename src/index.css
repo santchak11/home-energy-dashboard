@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-base:     #080e1a;
+  --color-bg-surface:  #0f1a2e;
+  --color-bg-elevated: #162035;
+
+  --color-accent:     #00d4aa;
+  --color-accent-dim: rgba(0, 212, 170, 0.15);
+
+  --color-solar:   #fbbf24;
+  --color-battery: #34d399;
+  --color-grid:    #818cf8;
+  --color-home:    #f1f5f9;
+  --color-ev:      #60a5fa;
+  --color-heat:    #fb923c;
+
+  --color-text-primary:   #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted:     #64748b;
+
+  --color-border:        rgba(0, 212, 170, 0.12);
+  --color-border-subtle: rgba(241, 245, 249, 0.06);
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  background-color: #080e1a;
+  color: #f1f5f9;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #080e1a; }
+::-webkit-scrollbar-thumb { background: rgba(0, 212, 170, 0.3); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 212, 170, 0.5); }
+
+/* Glass card */
+.glass {
+  background: linear-gradient(135deg, rgba(15, 26, 46, 0.9) 0%, rgba(10, 18, 35, 0.95) 100%);
+  border: 1px solid rgba(0, 212, 170, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-subtle {
+  background: rgba(15, 26, 46, 0.5);
+  border: 1px solid rgba(241, 245, 249, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Glows */
+.glow-accent  { box-shadow: 0 0 24px rgba(0, 212, 170, 0.25); }
+.glow-solar   { box-shadow: 0 0 24px rgba(251, 191, 36, 0.25); }
+.glow-battery { box-shadow: 0 0 24px rgba(52, 211, 153, 0.25); }
+.glow-grid    { box-shadow: 0 0 24px rgba(129, 140, 248, 0.25); }
+.glow-ev      { box-shadow: 0 0 24px rgba(96, 165, 250, 0.25);  }
+
+/* Hero gradient background */
+.bg-hero {
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -5%, rgba(0, 212, 170, 0.10) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 30% at 80% 80%, rgba(129, 140, 248, 0.05) 0%, transparent 60%),
+    linear-gradient(160deg, #080e1a 0%, #0c1525 100%);
+}
+
+/* Number display */
+.value-xl {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.value-lg {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+/* Animated flow dot */
+@keyframes flow-along {
+  0%   { stroke-dashoffset: 100; }
+  100% { stroke-dashoffset: 0; }
+}
