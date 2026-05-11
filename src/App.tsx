@@ -1,122 +1,108 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { PowerFlow } from './components/powerflow/PowerFlow'
+import { AnalyticsView } from './components/analytics/AnalyticsView'
+import { theme } from './theme'
 
-function App() {
-  const [count, setCount] = useState(0)
+type Tab = 'Power Flow' | 'Analytics'
+
+export default function App() {
+  const [tab, setTab] = useState<Tab>('Power Flow')
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
+    <div
+      className="bg-hero"
+      style={{
+        minHeight: '100dvh',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {/* Header */}
+      <header
+        className="glass-subtle"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '12px 24px',
+          borderBottom: `1px solid ${theme.colors.border.subtle}`,
+          flexShrink: 0,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <svg width="28" height="28" viewBox="0 0 28 28">
+            <circle cx="14" cy="14" r="13" fill="none" stroke={theme.colors.accent.DEFAULT} strokeWidth="1.5" />
+            <path d="M 14,5 L 14,10 M 14,18 L 14,23 M 5,14 L 10,14 M 18,14 L 23,14 M 7.8,7.8 L 11.2,11.2 M 16.8,16.8 L 20.2,20.2 M 20.2,7.8 L 16.8,11.2 M 11.2,16.8 L 7.8,20.2"
+              stroke={theme.colors.solar.DEFAULT} strokeWidth="1.5" strokeLinecap="round" />
+            <circle cx="14" cy="14" r="3.5" fill={theme.colors.accent.DEFAULT} />
           </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: theme.colors.text.primary, letterSpacing: '0.04em' }}>
+              HOME ENERGY
+            </div>
+            <div style={{ fontSize: 10, color: theme.colors.accent.DEFAULT, letterSpacing: '0.12em', fontWeight: 600 }}>
+              LIVE DASHBOARD
+            </div>
+          </div>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+          {(['Power Flow', 'Analytics'] as Tab[]).map(t => (
+            <NavItem key={t} label={t} active={tab === t} onClick={() => setTab(t)} />
+          ))}
+          <NavItem label="History" />
+          <NavItem label="Settings" />
+        </div>
+
+        <div />
+      </header>
+
+      {/* Main content */}
+      <main style={{ flex: 1, padding: '16px 24px', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+        {tab === 'Power Flow' && (
+          <div style={{ flex: 1, borderRadius: 16, padding: 16, position: 'relative', minHeight: 460 }}>
+            <PowerFlow />
+          </div>
+        )}
+        {tab === 'Analytics' && (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+            <AnalyticsView />
+          </div>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer style={{ padding: '8px 24px', display: 'flex', gap: 24, justifyContent: 'center', flexShrink: 0 }}>
+        <StatusPill label="Growatt SPH6000" color={theme.colors.accent.DEFAULT} />
+        <StatusPill label="Modbus Local"    color={theme.colors.solar.DEFAULT} />
+        <StatusPill label="~1Hz refresh"    color={theme.colors.grid.DEFAULT} />
+      </footer>
+    </div>
   )
 }
 
-export default App
+function NavItem({ label, active, onClick }: { label: string; active?: boolean; onClick?: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        background: 'none', border: 'none', cursor: onClick ? 'pointer' : 'default',
+        fontSize: 13, fontWeight: active ? 600 : 400,
+        color: active ? theme.colors.accent.DEFAULT : theme.colors.text.secondary,
+        padding: '4px 0',
+        borderBottom: active ? `2px solid ${theme.colors.accent.DEFAULT}` : '2px solid transparent',
+        transition: 'color 0.2s',
+        opacity: onClick ? 1 : 0.4,
+      }}
+    >{label}</button>
+  )
+}
+
+function StatusPill({ label, color }: { label: string; color: string }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: theme.colors.text.muted }}>
+      <span style={{ width: 6, height: 6, borderRadius: '50%', background: color }} />
+      {label}
+    </div>
+  )
+}

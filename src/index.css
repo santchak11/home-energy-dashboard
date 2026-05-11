@@ -38,6 +38,17 @@ html {
 body {
   height: 100%;
   background-color: #080e1a;
+  background-image:
+    linear-gradient(135deg, rgba(70, 175, 155, 0.18) 0%, transparent 40%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.25) 1.5px, transparent 1.5px),
+    linear-gradient(135deg,
+      rgba(70, 175, 155, 0.15) 0%,
+      rgba(70, 175, 155, 0.06) 28%,
+      transparent 52%
+    ),
+    linear-gradient(160deg, #080e1a 0%, #0c1525 100%);
+  background-size: auto, 26px 26px, auto, auto;
+  background-attachment: fixed;
   color: #f1f5f9;
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -57,7 +68,7 @@ body {
 
 /* Glass card */
 .glass {
-  background: linear-gradient(135deg, rgba(15, 26, 46, 0.9) 0%, rgba(10, 18, 35, 0.95) 100%);
+  background: linear-gradient(135deg, rgba(15, 26, 46, 0.72) 0%, rgba(10, 18, 35, 0.78) 100%);
   border: 1px solid rgba(0, 212, 170, 0.12);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -77,13 +88,11 @@ body {
 .glow-grid    { box-shadow: 0 0 24px rgba(129, 140, 248, 0.25); }
 .glow-ev      { box-shadow: 0 0 24px rgba(96, 165, 250, 0.25);  }
 
-/* Hero gradient background */
+/* Outer layout shell — background is on body */
 .bg-hero {
-  background:
-    radial-gradient(ellipse 90% 55% at 50% -5%, rgba(0, 212, 170, 0.10) 0%, transparent 65%),
-    radial-gradient(ellipse 40% 30% at 80% 80%, rgba(129, 140, 248, 0.05) 0%, transparent 60%),
-    linear-gradient(160deg, #080e1a 0%, #0c1525 100%);
+  background: transparent;
 }
+
 
 /* Number display */
 .value-xl {
@@ -100,8 +109,15 @@ body {
   line-height: 1;
 }
 
-/* Animated flow dot */
-@keyframes flow-along {
-  0%   { stroke-dashoffset: 100; }
-  100% { stroke-dashoffset: 0; }
+/* Animated flow dots along SVG paths */
+@keyframes flow-dash {
+  from { stroke-dashoffset: var(--dash-from, 24); }
+  to   { stroke-dashoffset: var(--dash-to,   0);  }
 }
+
+/* Pulse for live indicator */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+.animate-pulse { animation: pulse-dot 1.5s ease-in-out infinite; }
