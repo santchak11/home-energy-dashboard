@@ -59,7 +59,6 @@ export function AnimatedPath({ d, color, watts, width = 3, arrows = 5, small = f
                 keyTimes="0;1"
                 calcMode="linear"
               >
-                {/* @ts-expect-error – mpath is valid SVG/SMIL but absent from React's JSX types */}
                 <mpath href={`#${pathId}`} />
               </animateMotion>
             </path>

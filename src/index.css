@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* ── Animatable custom properties (typed so the browser can interpolate them) */
+@property --solar-x           { syntax: '<percentage>'; initial-value: 50%;  inherits: true; }
+@property --solar-y           { syntax: '<percentage>'; initial-value: 10%;  inherits: true; }
+@property --solar-opacity     { syntax: '<number>';     initial-value: 0.05; inherits: true; }
+@property --solar-spread      { syntax: '<percentage>'; initial-value: 38%;  inherits: true; }
+@property --solar-spread-mask { syntax: '<percentage>'; initial-value: 60%;  inherits: true; }
+
 @theme {
   --color-bg-base:     #080e1a;
   --color-bg-surface:  #0f1a2e;
@@ -33,21 +40,15 @@
 
 html {
   height: 100%;
+  overflow: hidden;
 }
 
 body {
   height: 100%;
+  overflow: hidden;
+  position: relative;                          /* stacking context for z-index on ::before/::after */
   background-color: #080e1a;
-  background-image:
-    linear-gradient(135deg, rgba(70, 175, 155, 0.18) 0%, transparent 40%),
-    radial-gradient(circle, rgba(255, 255, 255, 0.25) 1.5px, transparent 1.5px),
-    linear-gradient(135deg,
-      rgba(70, 175, 155, 0.15) 0%,
-      rgba(70, 175, 155, 0.06) 28%,
-      transparent 52%
-    ),
-    linear-gradient(160deg, #080e1a 0%, #0c1525 100%);
-  background-size: auto, 26px 26px, auto, auto;
+  background-image: linear-gradient(160deg, #080e1a 0%, #0c1525 100%);
   background-attachment: fixed;
   color: #f1f5f9;
   font-family: 'Inter', system-ui, sans-serif;
@@ -55,9 +56,61 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ── Dynamic solar glow ──────────────────────────────────────────────────────
+   Position drifts with the sun arc (east→zenith→west).
+   Radius & opacity scale with live solar watts from HA.
+   Transitions are smooth because --solar-* are registered @property types.   */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    /* Solar glow — position & intensity driven by PowerFlow via CSS vars */
+    radial-gradient(
+      ellipse var(--solar-spread) 36% at var(--solar-x) var(--solar-y),
+      rgba(0, 212, 170, var(--solar-opacity)) 0%,
+      rgba(0, 180, 140, calc(var(--solar-opacity) * 0.35)) 40%,
+      transparent 70%
+    ),
+    /* Static whisper of indigo at the base — gives horizon depth */
+    radial-gradient(ellipse 90% 18% at 50% 100%, rgba(129, 140, 248, 0.04) 0%, transparent 70%);
+  transition:
+    --solar-x        5s ease,
+    --solar-y        5s ease,
+    --solar-opacity  3s ease,
+    --solar-spread   3s ease;
+}
+
+/* ── Dot grid with inverse mask ──────────────────────────────────────────────
+   Dots fade TOWARD the glow (where it's bright) and emerge in the dark zones.
+   Mask alpha: 0 = dots hidden, 1 = dots visible.                             */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.28) 1.5px, transparent 1.5px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(
+    ellipse var(--solar-spread-mask) 54% at var(--solar-x) var(--solar-y),
+    rgba(0, 0, 0, 0.04) 0%,    /* nearly invisible at glow centre */
+    rgba(0, 0, 0, 0.85) 65%    /* well visible in the dark periphery */
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse var(--solar-spread-mask) 54% at var(--solar-x) var(--solar-y),
+    rgba(0, 0, 0, 0.04) 0%,
+    rgba(0, 0, 0, 0.85) 65%
+  );
+  transition: --solar-spread-mask 3s ease;
+}
+
 #root {
   height: 100%;
   width: 100%;
+  position: relative;                          /* sits above the ::before / ::after layers */
 }
 
 /* Scrollbar */
@@ -88,11 +141,10 @@ body {
 .glow-grid    { box-shadow: 0 0 24px rgba(129, 140, 248, 0.25); }
 .glow-ev      { box-shadow: 0 0 24px rgba(96, 165, 250, 0.25);  }
 
-/* Outer layout shell — background is on body */
+/* Outer layout shell */
 .bg-hero {
   background: transparent;
 }
-
 
 /* Number display */
 .value-xl {
