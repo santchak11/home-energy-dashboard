@@ -71,6 +71,22 @@ export function getTimeRange(period: Period, offset: number): TimeRange {
 
 const INFLUX = import.meta.env.VITE_INFLUXDB_URL ?? `http://${window.location.hostname}:8086`
 
+// Measurements stored only in rp_1h (not rp_1m) — daily counters that use LAST aggregation
+const RP_1H_ONLY = new Set(['kWh', 'h', 's'])
+
+/**
+ * Route to the correct retention policy based on period:
+ *  H / D → autogen  (raw, 30-day store)
+ *  M     → rp_1m    (1-minute aggregates, 1-year store) — or rp_1h for kWh/h/s
+ *  Y     → rp_1h    (1-hour aggregates, forever)
+ */
+function retentionPolicy(period: Period, measurement: string): string {
+  if (period === 'H' || period === 'D') return ''
+  if (period === 'Y') return 'rp_1h'
+  // M period
+  return RP_1H_ONLY.has(measurement) ? 'rp_1h' : 'rp_1m'
+}
+
 export async function influxQuery(
   measurement: string,
   entityId: string,
@@ -78,8 +94,11 @@ export async function influxQuery(
   to: string,
   interval: string,
   fn = 'mean',
+  period: Period = 'H',
 ): Promise<DataPoint[]> {
-  const q = `SELECT ${fn}(value) as v FROM "${measurement}" WHERE "entity_id"='${entityId}' AND time >= ${from} AND time <= ${to} GROUP BY time(${interval}) fill(none)`
+  const rp = retentionPolicy(period, measurement)
+  const from_clause = rp ? `"${rp}"."${measurement}"` : `"${measurement}"`
+  const q = `SELECT ${fn}(value) as v FROM ${from_clause} WHERE "entity_id"='${entityId}' AND time >= ${from} AND time <= ${to} GROUP BY time(${interval}) fill(none)`
   const url = `${INFLUX}/query?db=homeassistant&q=${encodeURIComponent(q)}`
   const res  = await fetch(url)
   const json = await res.json()
@@ -105,7 +124,7 @@ export function useInfluxSeries(
     let cancelled = false
     setLoading(true); setError(false)
     const { from, to, interval } = getTimeRange(period, offset)
-    influxQuery(measurement, entityId, from, to, interval, fn)
+    influxQuery(measurement, entityId, from, to, interval, fn, period)
       .then(d  => { if (!cancelled) { setData(d); setLoading(false) } })
       .catch(() => { if (!cancelled) { setError(true); setLoading(false) } })
     return () => { cancelled = true }
@@ -130,7 +149,7 @@ export function useInfluxMulti(
     const { from, to, interval } = getTimeRange(period, offset)
     Promise.all(
       entities.map(id =>
-        influxQuery(measurement, id, from, to, interval)
+        influxQuery(measurement, id, from, to, interval, 'mean', period)
           .then(d => [id, d] as [string, DataPoint[]])
           .catch(() => [id, []] as [string, DataPoint[]])
       )
